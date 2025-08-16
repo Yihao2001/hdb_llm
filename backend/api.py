@@ -1,19 +1,21 @@
-from fastapi import FastAPI, Request
-import joblib
-from pydantic import BaseModel
-from pathlib import Path
-import logging
-import time
-from openai import OpenAI
-import pandas as pd
-import sqlite3
-from typing import Optional
-from datetime import datetime
 import json
 import requests
 import os
 import uvicorn
 import threading
+import joblib
+import logging
+import time
+import pandas as pd
+import sqlite3
+
+from fastapi import FastAPI, Request
+from pydantic import BaseModel
+from pathlib import Path
+from openai import OpenAI
+from typing import Optional
+from datetime import datetime
+
 
 OPENAI_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_KEY)
@@ -203,11 +205,9 @@ def agent_request(req: AgentRequest):
 
 # ---------- Startup logic ----------
 def run_server():
-    print("hi")
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
 
 def interactive_client():
-    print("hi")
     time.sleep(2)
     while True:
         user_input = input("\nEnter your housing query (or 'exit' to quit): ")
