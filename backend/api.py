@@ -10,11 +10,12 @@ import pandas as pd
 import sqlite3
 from typing import Optional
 from datetime import datetime
+import os
 
 # ----------------------------
 # Configure OpenAI API key
 # ----------------------------
-OPENAI_KEY = "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"
+OPENAI_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_KEY)
 
 # ----------------------------
