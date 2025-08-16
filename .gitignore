@@ -1,0 +1,4 @@
+.DS_Store
+backend/__pycache__
+__pycache__
+backend/price_model_*

@@ -1,0 +1,17 @@
+INFO:root:Input: {'town': 'ANG MO KIO', 'flat_type': '4 ROOM', 'storey_range': '04 TO 06', 'floor_area_sqm': 100, 'flat_model': 'Model A', 'remaining_lease': 85}, Predicted: 602042.13, Model: price_model_v202508142237.pkl
+INFO:root:Input: {'town': 'TOA PAYOH', 'flat_type': '3 ROOM', 'storey_range': '01 TO 03', 'floor_area_sqm': 1, 'flat_model': 'Model B', 'remaining_lease': 0}, Predicted: 136889.18, Model: price_model_v202508142237.pkl
+INFO:numexpr.utils:NumExpr defaulting to 8 threads.
+INFO:root:Input: {'town': 'TOA PAYOH', 'flat_type': '3 ROOM', 'storey_range': '01 TO 03', 'floor_area_sqm': 1, 'flat_model': 'Model B', 'remaining_lease': 0}, Predicted: 136889.18, Model: price_model_v202508142237.pkl
+INFO:root:Input: {'town': 'TOA PAYOH', 'flat_type': '3 ROOM', 'storey_range': '01 TO 03', 'floor_area_sqm': 1, 'flat_model': 'Model B', 'remaining_lease': 0}, Predicted: 136889.18, Model: price_model_v202508142237.pkl
+INFO:numexpr.utils:NumExpr defaulting to 8 threads.
+INFO:root:Input: {'town': 'TOA PAYOH', 'flat_type': '3 ROOM', 'storey_range': '01 TO 03', 'floor_area_sqm': 1, 'flat_model': 'Model B', 'remaining_lease': 0}, Predicted: 136889.18, Model: price_model_v202508142240.pkl
+2025-08-14 23:30:58,515 - ERROR - Request error: Client.__init__() got an unexpected keyword argument 'proxies'
+2025-08-15 07:17:29,846 - ERROR - Request error: Client.__init__() got an unexpected keyword argument 'proxies'
+2025-08-15 07:18:14,020 - ERROR - Request error: Client.__init__() got an unexpected keyword argument 'proxies'
+2025-08-15 07:18:33,231 - ERROR - Request error: Client.__init__() got an unexpected keyword argument 'proxies'
+2025-08-15 07:18:40,674 - ERROR - Request error: Client.__init__() got an unexpected keyword argument 'proxies'
+2025-08-15 07:20:59,373 - ERROR - Request error: Client.__init__() got an unexpected keyword argument 'proxies'
+2025-08-15 07:26:26,658 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-15 07:26:26,664 - INFO - Input: {'town': 'TOA PAYOH', 'flat_type': '3 ROOM', 'storey_range': '01 TO 03', 'floor_area_sqm': 1, 'flat_model': 'Model B', 'remaining_lease': 0}, Predicted: 136889.18, Explanation: This price makes sense for this flat in Toa Payoh because it has a remaining lease of 0 years, which significantly impacts its value. Additionally, the small floor area of 1 sqm may also contribute to the lower price compared to similar flats in the area. The flat model being Model B could also be a factor in the pricing as different models may vary in desirability and value., Model: price_model_v202508142250.pkl
+2025-08-15 08:22:13,888 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-15 08:22:13,897 - INFO - Input: {'town': 'TOA PAYOH', 'flat_type': '3 ROOM', 'storey_range': '01 TO 03', 'floor_area_sqm': 1, 'flat_model': 'Model B', 'remaining_lease': 0}, Predicted: 136889.18, Explanation: This price makes sense compared to similar flats in the area because the flat has a remaining lease of 0 years, which significantly impacts its value. Additionally, the floor area of 1 sqm is very small, further contributing to the lower price. The flat model and storey range also play a role in determining the price, with Model B and being on a lower storey typically being priced lower than other options., Model: price_model_v202508142250.pkl

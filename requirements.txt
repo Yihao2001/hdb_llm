@@ -1,0 +1,11 @@
+pandas
+fastapi
+starlette
+uvicorn
+sqlalchemy
+pydantic
+scikit-learn
+joblib
+pytest
+pathlib
+openai=1.55.3
