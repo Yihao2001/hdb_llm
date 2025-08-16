@@ -1,13 +1,9 @@
 from fastapi.testclient import TestClient
-from backend.api import app  # adjust path if api.py is elsewhere
-from unittest.mock import patch
+from backend.api import app 
 
-# Create TestClient for the FastAPI app
 client = TestClient(app)
 
-# -----------------------------
 # Unit test: valid input
-# -----------------------------
 def test_predict_price_valid():
     response = client.post("/predict_price", json={
         "town": "ANG MO KIO",
@@ -22,9 +18,7 @@ def test_predict_price_valid():
     assert "predicted_price" in data
     assert "model_version" in data
 
-# -----------------------------
 # Edge case test: small values
-# -----------------------------
 def test_predict_price_edge_case():
     response = client.post("/predict_price", json={
         "town": "TOA PAYOH",
@@ -36,15 +30,12 @@ def test_predict_price_edge_case():
     })
     assert response.status_code == 200
     data = response.json()
-    assert data["predicted_price"] >= 0  # prediction should not be negative
+    assert data["predicted_price"] >= 0 
 
-# -----------------------------
 # Validation test: missing field
-# -----------------------------
 def test_predict_price_missing_field():
     response = client.post("/predict", json={
         "town": "ANG MO KIO",
         "flat_type": "4 ROOM"
-        # missing other required fields
     })
-    assert response.status_code == 422  # validation error
+    assert response.status_code == 422 

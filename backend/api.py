@@ -12,26 +12,20 @@ from datetime import datetime
 import json
 import requests
 import os
+import uvicorn
+import threading
 
-# ----------------------------
-# Configure OpenAI API key
-# ----------------------------
 OPENAI_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_KEY)
 
-# ----------------------------
-# Logging setup
-# ----------------------------
 logging.basicConfig(
     filename="api_requests.log",
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-# Load trained model
-# --- Automatically get the latest model ---
 BASE_DIR = Path(__file__).resolve().parent.parent
-model_folder = BASE_DIR / "backend" # or BASE_DIR / "models" if stored in a subfolder
+model_folder = BASE_DIR / "backend"
 DB_PATH = BASE_DIR / "db/hdb_data.db" 
 model_files = list(model_folder.glob("price_model_v*.pkl"))
 if not model_files:
@@ -40,7 +34,6 @@ if not model_files:
 if not model_files:
     raise FileNotFoundError("No model files found!")
 
-# Sort by version number (timestamp in filename) descending
 model_files.sort(reverse=True)
 latest_model_file = model_files[0]
 model = joblib.load(latest_model_file)
@@ -58,15 +51,10 @@ def query_db(query: str, params: Optional[tuple] = ()):
     conn.close()
     return [dict(row) for row in rows]
 
-
-# ----------------------------
-# FastAPI setup
-# ----------------------------
 app = FastAPI()
 REQUEST_COUNT = 0
 ERROR_COUNT = 0
 
-# Input schema using all relevant features
 class InputData(BaseModel):
     town: str
     flat_type: str
@@ -79,9 +67,6 @@ class InputData(BaseModel):
 class AgentRequest(BaseModel):
     user_query: str
 
-# ----------------------------
-# Middleware for monitoring latency
-# ----------------------------
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     global REQUEST_COUNT, ERROR_COUNT
@@ -99,9 +84,6 @@ async def add_process_time_header(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     return response
 
-# ----------------------------
-# Monitoring endpoint
-# ----------------------------
 @app.get("/metrics")
 def get_metrics():
     return {
@@ -112,15 +94,12 @@ def get_metrics():
 
 @app.post("/predict_price")
 def predict_price(data: InputData):
-    # Convert input to dataframe
     df_input = pd.DataFrame([data.model_dump()])
 
-    # Predict using all columns
     pred = model.predict(df_input)
     predicted_price = round(float(pred[0]), 2)
     discounted_price = round(predicted_price * data.discount / 100.0, 2)
 
-    # Log request
     logging.info(f"Input: {data.model_dump()}, Predicted: {predicted_price}, Model: {MODEL_VERSION}")
 
     return {
@@ -192,7 +171,6 @@ def agent_request(req: AgentRequest):
 
     actions = json.loads(plan.choices[0].message.content)["actions"]
 
-    # Step 2: Execute actions
     results = []
     for act in actions:
         if act["action"] == "GET":
@@ -201,7 +179,6 @@ def agent_request(req: AgentRequest):
             resp = requests.post(BASE_URL + act["endpoint"], json=act["params"]).json()
         results.append({"action": act, "result": resp})
 
-    # Step 3: Summarize with LLM
     summary_prompt = f"""
     User query: {user_query}
     Here are the raw results: {json.dumps(results, indent=2)}
@@ -223,3 +200,25 @@ def agent_request(req: AgentRequest):
         "plan": actions,
         "results": results
     }
+
+# ---------- Startup logic ----------
+def run_server():
+    print("hi")
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
+
+def interactive_client():
+    print("hi")
+    time.sleep(2)
+    while True:
+        user_input = input("\nEnter your housing query (or 'exit' to quit): ")
+        if user_input.lower() == "exit":
+            break
+        resp = requests.post("http://127.0.0.1:8000/agent", json={"user_query": user_input})
+        print("\n=== Response ===")
+        print(resp.json())
+
+
+if __name__ == "__main__":
+    server_thread = threading.Thread(target=run_server, daemon=True)
+    server_thread.start()
+    interactive_client()

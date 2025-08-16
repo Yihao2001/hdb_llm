@@ -1,11 +1,11 @@
 fastapi
 joblib
 pathlib
-openai=1.55.3
+openai==1.55.3
 pandas
 sqlalchemy
 pydantic
 requests
 scikit-learn
 pytest
-uvicorn # Recommended for running FastAPI applications
+uvicorn

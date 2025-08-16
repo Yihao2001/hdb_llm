@@ -1,10 +1,8 @@
 import sqlite3
 
-# Connect to SQLite (will create file if not exists)
 conn = sqlite3.connect("db/hdb_data.db")
 cursor = conn.cursor()
 
-# Create table for BTO 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS bto_launches (
     blk_no TEXT,
@@ -34,7 +32,6 @@ CREATE TABLE IF NOT EXISTS bto_launches (
 );
 """)
 
-# Create table for resale prices
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS resale_prices (
     month TEXT,
@@ -52,5 +49,3 @@ CREATE TABLE IF NOT EXISTS resale_prices (
 """)
 
 conn.commit()
-
-print("✅ Database and tables created successfully!")

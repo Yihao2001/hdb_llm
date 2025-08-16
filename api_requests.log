@@ -1,0 +1,4 @@
+2025-08-16 11:07:44,824 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-16 11:07:44,873 - INFO - Input: {'town': 'ANG MO KIO', 'flat_type': '3 ROOM', 'storey_range': '10 TO 12', 'floor_area_sqm': 70, 'flat_model': 'New generation', 'remaining_lease': 80, 'discount': 20.0}, Predicted: 554787.69, Model: price_model_v202508142250.pkl
+2025-08-16 11:07:44,880 - INFO - Input: {'town': 'ANG MO KIO', 'flat_type': '4 ROOM', 'storey_range': '10 TO 12', 'floor_area_sqm': 92, 'flat_model': 'New generation', 'remaining_lease': 80, 'discount': 20.0}, Predicted: 669654.39, Model: price_model_v202508142250.pkl
+2025-08-16 11:07:55,214 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"

@@ -23,7 +23,6 @@ town_mapping = {
 }
 bto_df['bldg_contract_town'] = bto_df['bldg_contract_town'].replace(town_mapping)
 
-# Connect to SQLite
 conn = sqlite3.connect("db/hdb_data.db")
 
 # Load into database
@@ -31,5 +30,3 @@ resale_df_combined.to_sql("resale_prices", conn, if_exists="replace", index=Fals
 bto_df.to_sql("bto_launches", conn, if_exists="replace", index=False)
 
 conn.close()
-
-print("CSV data loaded into database.")
