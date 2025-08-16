@@ -1,4 +1,3 @@
-# api.py
 from fastapi import FastAPI, Request
 import joblib
 from pydantic import BaseModel
@@ -10,6 +9,8 @@ import pandas as pd
 import sqlite3
 from typing import Optional
 from datetime import datetime
+import json
+import requests
 import os
 
 # ----------------------------
@@ -73,7 +74,10 @@ class InputData(BaseModel):
     floor_area_sqm: int
     flat_model: str
     remaining_lease: int
+    discount: float
 
+class AgentRequest(BaseModel):
+    user_query: str
 
 # ----------------------------
 # Middleware for monitoring latency
@@ -114,35 +118,15 @@ def predict_price(data: InputData):
     # Predict using all columns
     pred = model.predict(df_input)
     predicted_price = round(float(pred[0]), 2)
-
-    prompt = f"""
-    You are a real estate assistant. 
-    Given a flat with the following details:
-    Town: {data.town}
-    Flat type: {data.flat_type}
-    Storey range: {data.storey_range}
-    Floor area: {data.floor_area_sqm} sqm
-    Flat model: {data.flat_model}
-    Remaining lease: {data.remaining_lease} years
-    Predicted price: {predicted_price}
-    
-    Explain in 2-3 sentences why this price makes sense compared to similar flats in the area.
-    """
-
-    # Call OpenAI GPT model
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}], 
-        temperature=0.5)
-    explanation = response.choices[0].message.content.strip()
+    discounted_price = round(predicted_price * data.discount / 100.0, 2)
 
     # Log request
-    logging.info(f"Input: {data.model_dump()}, Predicted: {predicted_price}, Explanation: {explanation}, Model: {MODEL_VERSION}")
+    logging.info(f"Input: {data.model_dump()}, Predicted: {predicted_price}, Model: {MODEL_VERSION}")
 
     return {
         "predicted_price": predicted_price,
-        "model_version": MODEL_VERSION,
-        "explanation": explanation
+        "disounted_price": discounted_price,
+        "model_version": MODEL_VERSION
     }
 
 @app.get("/bto/town_reco")
@@ -164,3 +148,78 @@ def get_street_frequency(type:str="highest", duration:int=10, limit:int=1):
     if not result:
         return {"message": "No BTO data found for the last 10 years."}
     return result[0]
+
+@app.post("/agent")
+def agent_request(req: AgentRequest):
+    user_query = req.user_query
+    BASE_URL = "http://localhost:8000"
+    planner_prompt = f"""
+    The user asked: {user_query}
+    You are connected to 2 APIs:
+    - GET /bto/town_reco (params: type [highest|lowest], duration [int years], limit [int])
+    - POST /predict_price 
+      (params:
+            "town": str,
+            "flat_type": str,
+            "storey_range": str,
+            "floor_area_sqm": int,
+            "flat_model": str,
+            "remaining_lease": int
+            "discount": float
+      )
+    
+    Break down the query into steps:
+    1. Decide which towns to fetch with /bto/town_reco.
+    2. For each town, call /predict_price based on town recommended from get request, for any params not specified by user prompt, use the following defaults:
+        - "town": "ANG MO KIO"
+        - "flat_type": "4 ROOM,
+        - "storey_range": "10 TO 12",
+        - "floor_area_sqm": 92,
+        - "flat_model": "New generation",
+        - "remaining_lease": 80
+        - "discount": 20
+    3. Return the results as JSON.
+    
+    Respond ONLY in JSON format: a list of actions with {{"action": "GET"/"POST", "endpoint": "...", "params": {{...}}}}
+    """
+
+    plan = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": planner_prompt}],
+        temperature=0,
+        response_format={ "type": "json_object" }
+    )
+
+    actions = json.loads(plan.choices[0].message.content)["actions"]
+
+    # Step 2: Execute actions
+    results = []
+    for act in actions:
+        if act["action"] == "GET":
+            resp = requests.get(BASE_URL + act["endpoint"], params=act["params"]).json()
+        elif act["action"] == "POST":
+            resp = requests.post(BASE_URL + act["endpoint"], json=act["params"]).json()
+        results.append({"action": act, "result": resp})
+
+    # Step 3: Summarize with LLM
+    summary_prompt = f"""
+    User query: {user_query}
+    Here are the raw results: {json.dumps(results, indent=2)}
+    
+    Please provide a structured housing analysis:
+    - Recommended estates
+    - Price insights
+    - Suggested household income brackets
+    """
+
+    summary = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": summary_prompt}],
+        temperature=0.5
+    )
+
+    return {
+        "summary": summary.choices[0].message.content,
+        "plan": actions,
+        "results": results
+    }

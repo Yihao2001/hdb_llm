@@ -1,4 +1,3 @@
-# train_model.py
 import sqlite3
 import pandas as pd
 from sklearn.compose import ColumnTransformer
