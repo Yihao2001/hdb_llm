@@ -57,6 +57,7 @@ The system is designed for simplicity, clarity, and easy operational monitoring.
 - **Type:** SQLite
 - **Purpose:** Stores housing resale price data (`resale_prices`) and BTO launch data (`bto_launches`)
 - **Rationale:** The dataset is small, so a lightweight, file-based database is sufficient
+- **Data Source:** data.gov.sg
 
 ### Model
 
@@ -135,7 +136,6 @@ Tracks total requests, errors, and current model version.
 Includes:
 - Unit tests for endpoints
 - Edge case tests for prediction inputs
-- LLM plan validation
 
 #### Operational Best Practices
 
@@ -144,6 +144,15 @@ Includes:
 - Continuous monitoring of API responses and LLM actions
 
 ---
+
+## Future Improvements
+
+Due to the tight deadline, I was unable to fully implement many possible features and the current pipeline is heavily limited in functionality, some of which include:
+- better data ingestion pipeline to extract and load data automatically on a regular basis
+- a much better prediction model (used a very simple model without tuning currently, likely very inaccurate)
+- more dynamic api calls that allow for more dynamic inputs
+- better agentic capabilities
+- better monitoring and testing
 
 ## Usage Examples
 
@@ -154,48 +163,6 @@ Includes:
 python backend/api.py
 
 # Enter a query like:
-"I'm looking for a 4-room flat in Tampines with good resale value"
+"Please recommend housing estates that have had limited Build-To-Order (BTO) launches in the past ten years. For each estate, provide an analysis of potential BTO prices for both 3-room and 4-room flats, considering low, middle, and high floor levels. For each price category, include the recommended household income needed to afford the flat."
 ```
 
-### Example 2: Direct Price Prediction
-
-```bash
-curl -X POST http://localhost:5000/predict_price \
-  -H "Content-Type: application/json" \
-  -d '{
-    "town": "Tampines",
-    "flat_type": "4 ROOM",
-    "storey_range": "07 TO 09",
-    "floor_area_sqm": 90,
-    "flat_model": "Model A",
-    "remaining_lease": 80
-  }'
-```
-
-### Example 3: BTO Town Recommendations
-
-```bash
-curl "http://localhost:5000/bto/town_reco?type=highest&duration=3&limit=5"
-```
-
----
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## Support
-
-For questions or support, please open an issue in the GitHub repository.
